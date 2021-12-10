@@ -1122,7 +1122,8 @@ module.exports = class frostybot_trade_module extends frostybot_module {
 
     async check_hedge_mode(type, params) {
         var stub = params.stub;
-        var direction = params.direction;
+		//var direction = params.direction;changes*
+        var direction = params.direction.toLowerCase();
         var exchange = await this.mod.exchange.get_exchange_from_stub(stub);
 
         // Binance Futures Hedge Mode Defaults
@@ -1199,7 +1200,7 @@ module.exports = class frostybot_trade_module extends frostybot_module {
         if (params.symbol != undefined && params.stub != undefined && params.size == undefined && params.base == undefined && params.quote == undefined && params.usd == undefined && params.scale == undefined) {
             var stub = params.stub;
             var symbol = params.symbol;
-            var direction = params.direction;
+            var direction = params.direction.toLowerCase();
             var exchange = await this.mod.exchange.get_exchange_from_stub(stub);            
             var market = await this.mod.exchange.findmarket(exchange, symbol);
             if (market != false) symbol = market.id;        
@@ -1265,6 +1266,8 @@ module.exports = class frostybot_trade_module extends frostybot_module {
     async create_order(type, params) {
         const stub = params.stub
         const symbol = params.symbol
+		//lowercasing 
+		params.direction = params.direction.toLowerCase();
         const direction = params.direction
         const force = params.force
         params.market = await this.get_market(stub, symbol);
