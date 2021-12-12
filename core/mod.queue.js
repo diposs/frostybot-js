@@ -54,8 +54,8 @@ module.exports = class frostybot_queue_module extends frostybot_module {
             params = [params]
         }
         params.forEach(order => {
-            this.mod.output.notice('order_queued', order)
             this.queue[uuid][stub][symbol].push(order)
+            this.mod.output.notice('order_queued', order)
         });
     }
 
@@ -79,9 +79,10 @@ module.exports = class frostybot_queue_module extends frostybot_module {
 
     async submit(stub, symbol, order) {
         try {
-            var result = await this.mod.exchange.execute(stub, 'create_order', order);
+            var result = await this.mod.exchange.execute(stub, 'create_order', order, true);
         } catch (e) {
-            this.mod.signals.output.error('Exchange Exception: ' + (e.msg || e.message || e))
+            this.mod.output.error('custom_message', 'Exchange Error: ' + (e.msg || e.message || e))
+            this.mod.signals.output.error('Exchange Error: ' + (e.msg || e.message || e))
             return false;
         }
         
@@ -121,7 +122,7 @@ module.exports = class frostybot_queue_module extends frostybot_module {
         var uuid = context.get('reqId')
         this.create(stub, symbol)
         var noexecute = await this.mod.config.get('debug:noexecute', false);
-        var maxretry = parseInt(await this.mod.config.get(stub + ':maxretry', 3));
+        var maxretry = parseInt(await this.mod.config.get(stub + ':maxretry', 0));
         var retrywait = parseInt(await this.mod.config.get(stub + ':retrywait', 5));
         if (noexecute == true) {
             this.mod.output.debug('debug_noexecute');

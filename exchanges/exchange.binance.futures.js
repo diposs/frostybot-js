@@ -8,6 +8,168 @@ const frostybot_market = require('../classes/classes.market');
 var context = require('express-http-context');
 var binanceapi = require('node-binance-api-ext');
 
+
+const BINANCE_ERROR_CODES = {
+    '-1000': 'UNKNOWN',
+    '-1001': 'DISCONNECTED',
+    '-1002': 'UNAUTHORIZED',
+    '-1003': 'TOO_MANY_REQUESTS',
+    '-1004': 'DUPLICATE_IP',
+    '-1005': 'NO_SUCH_IP',
+    '-1006': 'UNEXPECTED_RESP',
+    '-1007': 'TIMEOUT',
+    '-1010': 'ERROR_MSG_RECEIVED',
+    '-1011': 'NON_WHITE_LIST',
+    '-1013': 'INVALID_MESSAGE',
+    '-1014': 'UNKNOWN_ORDER_COMPOSITION',
+    '-1015': 'TOO_MANY_ORDERS',
+    '-1016': 'SERVICE_SHUTTING_DOWN',
+    '-1020': 'UNSUPPORTED_OPERATION',
+    '-1021': 'INVALID_TIMESTAMP',
+    '-1022': 'INVALID_SIGNATURE',
+    '-1023': 'START_TIME_GREATER_THAN_END_TIME',
+    '-1100': 'ILLEGAL_CHARS',
+    '-1101': 'TOO_MANY_PARAMETERS',
+    '-1102': 'MANDATORY_PARAM_EMPTY_OR_MALFORMED',
+    '-1103': 'UNKNOWN_PARAM',
+    '-1104': 'UNREAD_PARAMETERS',
+    '-1105': 'PARAM_EMPTY',
+    '-1106': 'PARAM_NOT_REQUIRED',
+    '-1108': 'BAD_ASSET',
+    '-1109': 'BAD_ACCOUNT',
+    '-1110': 'BAD_INSTRUMENT_TYPE',
+    '-1111': 'BAD_PRECISION',
+    '-1112': 'NO_DEPTH',
+    '-1113': 'WITHDRAW_NOT_NEGATIVE',
+    '-1114': 'TIF_NOT_REQUIRED',
+    '-1115': 'INVALID_TIF',
+    '-1116': 'INVALID_ORDER_TYPE',
+    '-1117': 'INVALID_SIDE',
+    '-1118': 'EMPTY_NEW_CL_ORD_ID',
+    '-1119': 'EMPTY_ORG_CL_ORD_ID',
+    '-1120': 'BAD_INTERVAL',
+    '-1121': 'BAD_SYMBOL',
+    '-1125': 'INVALID_LISTEN_KEY',
+    '-1127': 'MORE_THAN_XX_HOURS',
+    '-1128': 'OPTIONAL_PARAMS_BAD_COMBO',
+    '-1130': 'INVALID_PARAMETER',
+    '-1136': 'INVALID_NEW_ORDER_RESP_TYPE',
+    '-2010': 'NEW_ORDER_REJECTED',
+    '-2011': 'CANCEL_REJECTED',
+    '-2013': 'NO_SUCH_ORDER',
+    '-2014': 'BAD_API_KEY_FMT',
+    '-2015': 'REJECTED_MBX_KEY',
+    '-2016': 'NO_TRADING_WINDOW',
+    '-2018': 'BALANCE_NOT_SUFFICIENT',
+    '-2019': 'MARGIN_NOT_SUFFICIENT',
+    '-2020': 'UNABLE_TO_FILL',
+    '-2021': 'ORDER_WOULD_IMMEDIATELY_TRIGGER',
+    '-2022': 'REDUCE_ONLY_REJECT',
+    '-2023': 'USER_IN_LIQUIDATION',
+    '-2024': 'POSITION_NOT_SUFFICIENT',
+    '-2025': 'MAX_OPEN_ORDER_EXCEEDED',
+    '-2026': 'REDUCE_ONLY_ORDER_TYPE_NOT_SUPPORTED',
+    '-2027': 'MAX_LEVERAGE_RATIO',
+    '-2028': 'MIN_LEVERAGE_RATIO',
+    '-4000': 'INVALID_ORDER_STATUS',
+    '-4001': 'PRICE_LESS_THAN_ZERO',
+    '-4002': 'PRICE_GREATER_THAN_MAX_PRICE',
+    '-4003': 'QTY_LESS_THAN_ZERO',
+    '-4004': 'QTY_LESS_THAN_MIN_QTY',
+    '-4005': 'QTY_GREATER_THAN_MAX_QTY',
+    '-4006': 'STOP_PRICE_LESS_THAN_ZERO',
+    '-4007': 'STOP_PRICE_GREATER_THAN_MAX_PRICE',
+    '-4008': 'TICK_SIZE_LESS_THAN_ZERO',
+    '-4009': 'MAX_PRICE_LESS_THAN_MIN_PRICE',
+    '-4010': 'MAX_QTY_LESS_THAN_MIN_QTY',
+    '-4011': 'STEP_SIZE_LESS_THAN_ZERO',
+    '-4012': 'MAX_NUM_ORDERS_LESS_THAN_ZERO',
+    '-4013': 'PRICE_LESS_THAN_MIN_PRICE',
+    '-4014': 'PRICE_NOT_INCREASED_BY_TICK_SIZE',
+    '-4015': 'INVALID_CL_ORD_ID_LEN',
+    '-4016': 'PRICE_HIGHTER_THAN_MULTIPLIER_UP',
+    '-4017': 'MULTIPLIER_UP_LESS_THAN_ZERO',
+    '-4018': 'MULTIPLIER_DOWN_LESS_THAN_ZERO',
+    '-4019': 'COMPOSITE_SCALE_OVERFLOW',
+    '-4020': 'TARGET_STRATEGY_INVALID',
+    '-4021': 'INVALID_DEPTH_LIMIT',
+    '-4022': 'WRONG_MARKET_STATUS',
+    '-4023': 'QTY_NOT_INCREASED_BY_STEP_SIZE',
+    '-4024': 'PRICE_LOWER_THAN_MULTIPLIER_DOWN',
+    '-4025': 'MULTIPLIER_DECIMAL_LESS_THAN_ZERO',
+    '-4026': 'COMMISSION_INVALID',
+    '-4027': 'INVALID_ACCOUNT_TYPE',
+    '-4028': 'INVALID_LEVERAGE',
+    '-4029': 'INVALID_TICK_SIZE_PRECISION',
+    '-4030': 'INVALID_STEP_SIZE_PRECISION',
+    '-4031': 'INVALID_WORKING_TYPE',
+    '-4032': 'EXCEED_MAX_CANCEL_ORDER_SIZE',
+    '-4033': 'INSURANCE_ACCOUNT_NOT_FOUND',
+    '-4044': 'INVALID_BALANCE_TYPE',
+    '-4045': 'MAX_STOP_ORDER_EXCEEDED',
+    '-4046': 'NO_NEED_TO_CHANGE_MARGIN_TYPE',
+    '-4047': 'THERE_EXISTS_OPEN_ORDERS',
+    '-4048': 'THERE_EXISTS_QUANTITY',
+    '-4049': 'ADD_ISOLATED_MARGIN_REJECT',
+    '-4050': 'CROSS_BALANCE_INSUFFICIENT',
+    '-4051': 'ISOLATED_BALANCE_INSUFFICIENT',
+    '-4052': 'NO_NEED_TO_CHANGE_AUTO_ADD_MARGIN',
+    '-4053': 'AUTO_ADD_CROSSED_MARGIN_REJECT',
+    '-4054': 'ADD_ISOLATED_MARGIN_NO_POSITION_REJECT',
+    '-4055': 'AMOUNT_MUST_BE_POSITIVE',
+    '-4056': 'INVALID_API_KEY_TYPE',
+    '-4057': 'INVALID_RSA_PUBLIC_KEY',
+    '-4058': 'MAX_PRICE_TOO_LARGE',
+    '-4059': 'NO_NEED_TO_CHANGE_POSITION_SIDE',
+    '-4060': 'INVALID_POSITION_SIDE',
+    '-4061': 'POSITION_SIDE_NOT_MATCH',
+    '-4062': 'REDUCE_ONLY_CONFLICT',
+    '-4063': 'INVALID_OPTIONS_REQUEST_TYPE',
+    '-4064': 'INVALID_OPTIONS_TIME_FRAME',
+    '-4065': 'INVALID_OPTIONS_AMOUNT',
+    '-4066': 'INVALID_OPTIONS_EVENT_TYPE',
+    '-4067': 'POSITION_SIDE_CHANGE_EXISTS_OPEN_ORDERS',
+    '-4068': 'POSITION_SIDE_CHANGE_EXISTS_QUANTITY',
+    '-4069': 'INVALID_OPTIONS_PREMIUM_FEE',
+    '-4070': 'INVALID_CL_OPTIONS_ID_LEN',
+    '-4071': 'INVALID_OPTIONS_DIRECTION',
+    '-4072': 'OPTIONS_PREMIUM_NOT_UPDATE',
+    '-4073': 'OPTIONS_PREMIUM_INPUT_LESS_THAN_ZERO',
+    '-4074': 'OPTIONS_AMOUNT_BIGGER_THAN_UPPER',
+    '-4075': 'OPTIONS_PREMIUM_OUTPUT_ZERO',
+    '-4076': 'OPTIONS_PREMIUM_TOO_DIFF',
+    '-4077': 'OPTIONS_PREMIUM_REACH_LIMIT',
+    '-4078': 'OPTIONS_COMMON_ERROR',
+    '-4079': 'INVALID_OPTIONS_ID',
+    '-4080': 'OPTIONS_USER_NOT_FOUND',
+    '-4081': 'OPTIONS_NOT_FOUND',
+    '-4082': 'INVALID_BATCH_PLACE_ORDER_SIZE',
+    '-4083': 'PLACE_BATCH_ORDERS_FAIL',
+    '-4084': 'UPCOMING_METHOD',
+    '-4085': 'INVALID_NOTIONAL_LIMIT_COEF',
+    '-4086': 'INVALID_PRICE_SPREAD_THRESHOLD',
+    '-4087': 'REDUCE_ONLY_ORDER_PERMISSION',
+    '-4088': 'NO_PLACE_ORDER_PERMISSION',
+    '-4104': 'INVALID_CONTRACT_TYPE',
+    '-4114': 'INVALID_CLIENT_TRAN_ID_LEN',
+    '-4115': 'DUPLICATED_CLIENT_TRAN_ID',
+    '-4118': 'REDUCE_ONLY_MARGIN_CHECK_FAILED',
+    '-4131': 'MARKET_ORDER_REJECT',
+    '-4135': 'INVALID_ACTIVATION_PRICE',
+    '-4137': 'QUANTITY_EXISTS_WITH_CLOSE_POSITION',
+    '-4138': 'REDUCE_ONLY_MUST_BE_TRUE',
+    '-4139': 'ORDER_TYPE_CANNOT_BE_MKT',
+    '-4140': 'INVALID_OPENING_POSITION_STATUS',
+    '-4141': 'SYMBOL_ALREADY_CLOSED',
+    '-4142': 'STRATEGY_INVALID_TRIGGER_PRICE',
+    '-4144': 'INVALID_PAIR',
+    '-4161': 'ISOLATED_LEVERAGE_REJECT_WITH_POSITION',
+    '-4164': 'MIN_NOTIONAL',
+    '-4165': 'INVALID_TIME_INTERVAL',
+    '-4183': 'PRICE_HIGHTER_THAN_STOP_MULTIPLIER_UP',
+    '-4184': 'PRICE_LOWER_THAN_STOP_MULTIPLIER_DOWN'                    
+}
+
 module.exports = class frostybot_exchange_binance_futures extends frostybot_exchange_base {
 
     // Class constructor
@@ -58,7 +220,7 @@ module.exports = class frostybot_exchange_binance_futures extends frostybot_exch
                 recvWindow: 60000,
                 verbose: true,
                 log: function(params) {
-                    this.mod.output.api('binance_futures', params);
+                    global.frostybot.modules.output.api('binance_futures', params);
                 }
             }
             try {
@@ -66,15 +228,21 @@ module.exports = class frostybot_exchange_binance_futures extends frostybot_exch
             } catch (e) {
                 return false;
             }
+              
             /*
-            if (this.binance) {
-                if (global.frostybot.markets == undefined) {
-                    await this.markets();
-                } else {
-                    if (global.frostybot.markets['binance_futures'] == undefined) await this.markets();
-                }
+            if (this.binance && this.stub.parameters.apikey == 'cUV8Nkhw7Y9w6LSSYQkgVYgCoyiQUhN8FlCE4Gn661l23pHRuEpbXn4zFK6iRXjk') {
+             
+                this.binance.webSocket.userData(
+                    (data) => {
+                        cconsole.info(data);
+                    },
+                    (data) => {
+                        console.info(data);
+                    }
+                );
             }
             */
+
         }
         await this.load_markets();
     }
@@ -104,6 +272,15 @@ module.exports = class frostybot_exchange_binance_futures extends frostybot_exch
     async custom_params(params) {
         var [type, order, custom, command] = params
 
+        // Add Binance Broker ID if configured
+
+        if (['long', 'short', 'buy', 'sell', 'close'].includes(type)) {
+            var brokerid = await this.mod.config.get('core:binancebrokerid', false);
+            if (![undefined, false].includes(brokerid)) {
+                order.params['newClientOrderId'] = 'x-' + brokerid.toUpperCase();
+            }
+        }
+
         // Check account to see if hedge mode is enabled
 
         var hedgemode = await this.mod.accounts.get_hedge_mode({stub: command.stub})            
@@ -112,7 +289,6 @@ module.exports = class frostybot_exchange_binance_futures extends frostybot_exch
         var commandhedgemode = ['long', 'short'].includes(command.direction)    // Hedge mode implied in command
 
         order.params['positionSide'] = (accounthedgemode ? (commandhedgemode ? command.direction : 'long') : 'both').toUpperCase()
-
         if (order.params.reduceOnly != undefined && commandhedgemode == true) delete order.params.reduceOnly
 
         return order;
@@ -135,8 +311,36 @@ module.exports = class frostybot_exchange_binance_futures extends frostybot_exch
             markets_by_id[market.id] = market;
         })
         this.markets_by_id = markets_by_id;
+        if (global.frostybot == undefined) global['frostybot'] = {};
+        if (global.frostybot.markets == undefined) global['frostybot']['markets'] = {};
         global.frostybot.markets['binance_futures'] = markets_by_id;
 
+    }
+
+    /*
+    balance_data(data) {
+        console.log(data)
+    }
+
+    exec_data(data) {
+        console.log(data)
+    }
+    */
+
+    // Start account data stream
+
+    async start_account_data_stream() {
+        /*
+        let endpoints = this.binance.webSocket.subscriptions();
+            for (let endpoint in endpoints) {
+            console.log(endpoint);
+            await this.binance.webSockets.terminate(endpoint);
+        }
+        //console.log(this.binance)
+        var streamid = await this.binance.webSocket.userMarginData(this.balance_data, this.exec_data);
+        return streamid;
+        */
+       return  true;
     }
 
     // Set leverage for symbol
@@ -257,22 +461,37 @@ module.exports = class frostybot_exchange_binance_futures extends frostybot_exch
         delete order_params.stopPrice;
 
         var order_params = params.params;
-        //var [symbol, type, side, amount, price, order_params] = this.mod.utils.extract_props(params, ['symbol', 'type', 'side', 'amount', 'price', 'params']);
-        //var market = this.find_market(symbol);
-        //symbol = market.id;
+        var result = false;
+
         try {
             switch (type) {
-                case 'MARKET'               :   return await this.create_market_order(side, symbol, amount, order_params);
-                case 'LIMIT'                :   return await this.create_limit_order(side, symbol, amount, price, order_params);
-                case 'STOP_MARKET'          :   return await this.create_stop_market_order(side, symbol, amount, trigger, order_params);
-                case 'STOP'                 :   return await this.create_stop_limit_order(side, symbol, amount, price, trigger, order_params);
-                case 'TAKE_PROFIT_MARKET'   :   return await this.create_take_profit_market_order(side, symbol, amount, trigger, order_params);
-                case 'TAKE_PROFIT'          :   return await this.create_limit_order(side, symbol, amount, trigger, order_params);
+                case 'MARKET'               :   result = await this.create_market_order(side, symbol, amount, order_params);
+                                                break;
+                case 'LIMIT'                :   result = await this.create_limit_order(side, symbol, amount, price, order_params);
+                                                break;
+                case 'STOP_MARKET'          :   result = await this.create_stop_market_order(side, symbol, amount, trigger, order_params);
+                                                break;
+                case 'STOP'                 :   result = await this.create_stop_limit_order(side, symbol, amount, price, trigger, order_params);
+                                                break;
+                case 'TAKE_PROFIT_MARKET'   :   result = await this.create_take_profit_market_order(side, symbol, amount, trigger, order_params);
+                                                break;
+                case 'TAKE_PROFIT'          :   result = await this.create_limit_order(side, symbol, amount, trigger, order_params);
+                                                break;
             }
-                
+            if (result.code != undefined) {
+                if (result.code < -1000) {
+                    var message = result.msg || BINANCE_ERROR_CODES[result.code]
+                    throw new Error('Binance: ' + result.code + ': ' + message)
+                }
+            }
         } catch (e) {
-            return e
-            //throw new frostybot_error((e.msg || e.message), e.code);
+            if (e.code != undefined) {
+                if (e.code < -1000) {
+                    var message = e.msg || BINANCE_ERROR_CODES[e.code]
+                    throw new Error('Binance: ' + e.code + ': ' + message)
+                }
+            }
+            throw new Error('Unknown Error: ' + (e.msg || e.message || 'No message'));
         }
         if (result.status !== undefined) return this.parse_order(result);
     }
@@ -512,7 +731,7 @@ module.exports = class frostybot_exchange_binance_futures extends frostybot_exch
         if (['all', undefined].includes(id)) {
             var orders = await this.open_orders({symbol: symbol});
             if (params.direction != undefined) {
-                orders = orders.filter(order => order.direction == direction);
+                orders = orders.filter(order => order.direction == params.direction);
                 var error = false;
                 orders.forEach(async (order, idx) => {
                     var id = order.id;

@@ -254,6 +254,7 @@ module.exports = class frostybot_pnl_module extends frostybot_module {
         order.direction = order.side
         delete order.side
 
+
         var existing = await this.database.select('orders', {uuid: user, stub: stub, orderid: order.id});
         if (Array.isArray(existing && existing.length == 1)) {                                
             order = {...existing, ...order};
@@ -318,7 +319,7 @@ module.exports = class frostybot_pnl_module extends frostybot_module {
                     var end = last.timestamp
                     var entry_value = this.mod.utils.sum_prop(direction == "long" ? buys : sells, "filled_quote")
                     var exit_value = this.mod.utils.sum_prop(direction == "long" ? sells : buys, "filled_quote")
-                    var pnl = exit_value - entry_value
+                    var pnl = direction == "long" ? exit_value - entry_value : entry_value - exit_value
                     var group = {
                         start: start,
                         end: end,

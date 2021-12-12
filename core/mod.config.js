@@ -7,17 +7,18 @@ var cron = require('node-cron');
 
 const config_keys = {
     'dummy:unittest': 'string',                   // Dummy key for unit testing
+    'debug:noexecute': 'boolean',                 // (Boolean) Do not process order queue and execute orders on the exchange
     'core:proxy': 'string',                       // Comma-separated list of proxies/load balancer IP addresses for CIDR ranges
     'core:url': 'string',                         // The Base URL of this Frostybot (used for loopback requests) - Default: http://localhost
     'core:webhook': 'string',                     // The Base Path of the Webhook endpoint (Default: /frostybot)
     'core:rest': 'string',                        // The Base Path of the REST endpoint (Default: /rest)
     'core:permissionset': 'oneof:disabled,standard,provider', // The permission set to use for the instance (disabled/standard/provider)
+    'core:registrationenabled': 'boolean',         // Allow users to register on this Frostybot
+    'core:binancebrokerid': 'string',             // Binance Broker ID
     'output:messages': 'oneof:none,brief,full',   // (none/brief/full) Include messages in result JSON object
     'output:debug': 'boolean',                    // (Boolean) Enable debug output
     'output:stats': 'boolean',                    // (Boolean) Enable debug output
-    'debug:noexecute': 'boolean',                 // (Boolean) Do not process order queue and execute orders on the exchange
     'gui:logfilters': 'string',                   // GUI Log Viewer message type filters
-    'core:registrationenabled': 'boolean',         // Allow users to register on this Frostybot
     'gui:showspotpositions': 'boolean',           // Show spot "positions" in the GUI
     'gui:showchart': 'boolean',                   // Show the Tradingview Chart
     'gui:columnspositions': 'string',             // Which columns to show on the positions tab in the GUI

@@ -43,6 +43,10 @@ module.exports = class frostybot_exchange_module extends frostybot_module {
             'exchange:markets': {
                 'standard': ['any' ],
                 'provider': ['any' ],
+            },
+            'exchange:start_account_data_stream': {
+                'standard': ['any' ],
+                'provider': ['any' ],
             }
         }
 
@@ -52,6 +56,7 @@ module.exports = class frostybot_exchange_module extends frostybot_module {
             'exchange:markets'    :  'get|/exchange/:exchange/markets',          // Get all markets for an exchange 
             'exchange:markets'    :  'get|/exchange/:exchange/markets/:symbol',  // Get market data for specific symbol 
             'exchange:positions'  :  'get|/exchange/:exchange/markets/:symbol',  // Get market data for specific symbol 
+            'exchange:start_account_data_stream'    : []
         }
 
         // Register endpoints with the REST and Webhook APIs
@@ -124,7 +129,7 @@ module.exports = class frostybot_exchange_module extends frostybot_module {
 
     // Execute method on the exchange normalizer
 
-    async execute(userinfo, method, params) {
+    async execute(userinfo, method, params, throwexception = false) {
         var config = await this.getstubconfig(userinfo);
         if (config !== false) {
             var file = await this.get_normalizer_module_by_stub(config);
@@ -142,8 +147,12 @@ module.exports = class frostybot_exchange_module extends frostybot_module {
                         var result = false;
                     }
                 } catch(e) {
-                    this.mod.output.exception(e);
-                    return false;
+                    if (throwexception == true) {
+                        throw e
+                    } else {
+                        this.mod.output.exception(e);
+                        return false;
+                    }
                 }
                 return result;
             }
@@ -204,7 +213,7 @@ module.exports = class frostybot_exchange_module extends frostybot_module {
             var stub = params
         }
         var cachekey = ['exchange:hedge_mode_enabled', uuid, stub].join(':');
-        return await this.mod.cache.method(cachekey, 10, async () => {
+        return await this.mod.cache.method(cachekey, null, async () => {
             return await this.mod.exchange.execute([uuid, stub], 'get_hedge_mode');
         });
     }
@@ -241,6 +250,14 @@ module.exports = class frostybot_exchange_module extends frostybot_module {
             return global.frostybot.exchanges[exchange][setting]
         else
             return undefined;
+    }
+
+
+    // Start account data stream
+
+    async start_account_data_stream(params) {
+        var stub = params.stub;
+        return await this.execute(stub, 'start_account_data_stream');
     }
 
     // Get positions
