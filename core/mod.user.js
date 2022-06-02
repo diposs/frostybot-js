@@ -143,7 +143,7 @@ module.exports = class frostybot_user_module extends frostybot_module {
 
     async create_token(uuid) {
         var timeout = await this.mod.settings.get('core','gui:sessiontimeout', 3600);
-        var duration = 1000 * timeout;
+        var duration = 23000 * timeout;
         var token = this.mod.encryption.new_uuid();
         var expiry = (new Date()).getTime() + duration;
         var result = await this.database.insertOrReplace('tokens', { uuid: uuid, token: token, expiry: this.mod.utils.ts_to_datetime(expiry)});
