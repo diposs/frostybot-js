@@ -910,7 +910,7 @@ module.exports = class frostybot_trade_module extends frostybot_module {
             type    :   param_map[(price == undefined ? 'market' : 'limit')],
             side    :   side,
             amount  :   amount,
-            price   :   (price != undefined ? price : null),
+            price   :   parseFloat((price != undefined ? price : null)).toPrecision(8),
             params  :   {}
         }
 
